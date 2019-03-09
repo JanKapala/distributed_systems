@@ -1,1 +1,2 @@
-Projects for labs of Distributed System Course at University of Science and Technology
+
+Projects from laboratories in the field of distributed systems at the University of Science and Technology
