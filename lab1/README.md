@@ -1,2 +1,2 @@
 
-Token Ring symulation
+Token Ring simulation
