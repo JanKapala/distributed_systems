@@ -14,8 +14,8 @@
 
 #define MAX_CONNECTION 10
 
-void init_main_socket();
-void receive_message(char* buffer);
-void send_message(char* buffer);
+void init_main_socket_tcp();
+void receive_message_tcp(char* buffer);
+void send_message_tcp(char* buffer);
 
 #endif

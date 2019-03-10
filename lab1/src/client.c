@@ -8,26 +8,35 @@
 #include <unistd.h>
 
 #include "tcp_communication.h"
+#include "udp_communication.h"
 #include "messages.h"
 
-void parse_input(int argc, char* args[]){
+// Communications functions' pointer
+void (*init_main_socket)();
+void (*receive_message)(char*);
+void (*send_message)(char*);
+
+void initialize(int argc, char* args[]){
     if(argc != 7){
         printf("Invalid number of command line arguments (should be 6)");
         exit(1);
     }
 
     user_ID = args[1];
+
+    IP = "127.0.0.1";
+
     port = atoi(args[2]);
     if(port < 1024){
         printf("Invalid listening port number (should be in range [1024;65535])");
     }
-    //TODO check a value of the port number 
     next_client_IP = args[3];
     //TODO check a value of the IP_address
     next_client_port = atoi(args[4]);
     if(next_client_port < 1024){
         printf("Invalid next client port number (should be in range [1024;65535])");
     }
+
     int raw_token_holding_flag = atoi(args[5]);
     if(raw_token_holding_flag != 0 && raw_token_holding_flag != 1){
         printf("Invalid token holding flag (should be '0' or '1')");
@@ -36,10 +45,23 @@ void parse_input(int argc, char* args[]){
     token_holding_flag = raw_token_holding_flag;
 
     protocol = args[6];
-    if(strcmp(protocol,"TCP") != 0 && strcmp(protocol,"UDP") != 0){
+    if(strcmp(protocol,"TCP") == 0){
+        init_main_socket = init_main_socket_tcp;
+        receive_message = receive_message_tcp;
+        send_message = send_message_tcp;
+    }
+    else if(strcmp(protocol,"UDP") == 0){
+        init_main_socket = init_main_socket_udp;
+        receive_message = receive_message_udp;
+        send_message = send_message_udp;
+    }
+    else{
         printf("Invalid protocol (should be 'TCP' or 'UDP')");
         exit(1);
     }
+
+    init_main_socket();
+
 }
 
 void print_configuration_info(){
@@ -63,9 +85,7 @@ void print_configuration_info(){
 
 int main(int argc, char** args)
 {
-    parse_input(argc, args);
-    IP = "127.0.0.1";
-    init_main_socket();
+    initialize(argc, args);
 
     print_configuration_info();
     
@@ -216,14 +236,11 @@ int main(int argc, char** args)
     }
     
     shutdown(main_socket, SHUT_RDWR);
+    exit(0);
 }
 
 //TODO
 /*
     -> ogarnac IP (pobieranie zamiast hardcode localhost)
-    -> oczyszczenie kodu
-    -> UDP implementation
-    -> wybor implementavji komunikacji przez wskazniki
     -> prezentacja w make'u
-    -> wydobyc i dac w inne miejsce ustawianie adresu nowgo klienta
 */

@@ -12,8 +12,8 @@
 
 #include "common.h"
 
-void init_main_socket();
-void receive_message(char* buffer);
-void send_message(char* buffer);
+void init_main_socket_udp();
+void receive_message_udp(char* buffer);
+void send_message_udp(char* buffer);
 
 #endif

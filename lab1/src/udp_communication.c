@@ -1,6 +1,6 @@
 #include "udp_communication.h"
 
-void init_main_socket(){
+void init_main_socket_udp(){
     struct sockaddr_in incoming_addr = {
         .sin_family = AF_INET,
         .sin_port = htons(port)
@@ -23,7 +23,7 @@ void init_main_socket(){
     }
 }
 
-void receive_message(char* buffer){
+void receive_message_udp(char* buffer){
     printf("Waiting for token...\n");
 
     memset(buffer, '\0', MAX_MSG_LEN);
@@ -33,7 +33,7 @@ void receive_message(char* buffer){
     }
 }
 
-void send_message(char* buffer){
+void send_message_udp(char* buffer){
     struct sockaddr_in next_client_addr = {
         .sin_family = AF_INET,
         .sin_port = htons(next_client_port)

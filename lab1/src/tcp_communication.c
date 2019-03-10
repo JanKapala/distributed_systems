@@ -1,6 +1,6 @@
 #include "tcp_communication.h"
 
-void init_main_socket(){
+void init_main_socket_tcp(){
     struct sockaddr_in incoming_addr = {
         .sin_family = AF_INET,
         .sin_port = htons(port)
@@ -28,7 +28,7 @@ void init_main_socket(){
     }
 }
 
-void receive_message(char* buffer){
+void receive_message_tcp(char* buffer){
     printf("Waiting for token...\n");
     const int incoming_socket = accept(main_socket, NULL, NULL);
     if(incoming_socket < 0){
@@ -44,7 +44,7 @@ void receive_message(char* buffer){
     shutdown(incoming_socket, SHUT_RDWR);
 }
 
-void send_message(char* buffer){
+void send_message_tcp(char* buffer){
     struct sockaddr_in next_client_addr = {
         .sin_family = AF_INET,
         .sin_port = htons(next_client_port)
