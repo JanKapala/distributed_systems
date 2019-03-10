@@ -18,7 +18,7 @@ void (*send_message)(char*);
 
 void initialize(int argc, char* args[]){
     if(argc != 7){
-        printf("Invalid number of command line arguments (should be 6)");
+        printf("Invalid number of command line arguments (should be 6)\n");
         exit(1);
     }
 
@@ -28,18 +28,18 @@ void initialize(int argc, char* args[]){
 
     port = atoi(args[2]);
     if(port < 1024){
-        printf("Invalid listening port number (should be in range [1024;65535])");
+        printf("Invalid listening port number (should be in range [1024;65535])\n");
     }
     next_client_IP = args[3];
     //TODO check a value of the IP_address
     next_client_port = atoi(args[4]);
     if(next_client_port < 1024){
-        printf("Invalid next client port number (should be in range [1024;65535])");
+        printf("Invalid next client port number (should be in range [1024;65535])\n");
     }
 
     int raw_token_holding_flag = atoi(args[5]);
     if(raw_token_holding_flag != 0 && raw_token_holding_flag != 1){
-        printf("Invalid token holding flag (should be '0' or '1')");
+        printf("Invalid token holding flag (should be '0' or '1')\n");
         exit(1);
     }
     token_holding_flag = raw_token_holding_flag;
@@ -56,7 +56,7 @@ void initialize(int argc, char* args[]){
         send_message = send_message_udp;
     }
     else{
-        printf("Invalid protocol (should be 'TCP' or 'UDP')");
+        printf("Invalid protocol (should be 'TCP' or 'UDP')\n");
         exit(1);
     }
 
