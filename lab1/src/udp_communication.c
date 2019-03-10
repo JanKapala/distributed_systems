@@ -14,12 +14,12 @@ void init_main_socket_udp(){
     main_socket = socket(AF_INET, SOCK_DGRAM, 0);
     if(main_socket < 0){
         perror("socket() ERROR");
-        exit(2);
+        exit(1);
     }
     
     if(bind(main_socket,(struct sockaddr *) & incoming_addr, len) < 0 ){
         perror("bind() ERROR");
-        exit(3);
+        exit(1);
     }
 }
 
@@ -28,8 +28,8 @@ void receive_message_udp(char* buffer){
 
     memset(buffer, '\0', MAX_MSG_LEN);
     if(recv(main_socket, buffer, MAX_MSG_LEN, 0) < 0){
-        perror("recvfrom() ERROR");
-        exit(5);
+        perror("recv() ERROR");
+        exit(1);
     }
 }
 
@@ -46,6 +46,6 @@ void send_message_udp(char* buffer){
 
     if(sendto(main_socket, buffer, MAX_MSG_LEN, 0, (struct sockaddr*) & next_client_addr, len) <= 0 ){
         perror("sendto() ERROR");
-        exit(6);
+        exit(1);
     }
 }

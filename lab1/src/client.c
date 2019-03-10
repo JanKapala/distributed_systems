@@ -11,40 +11,67 @@
 #include "udp_communication.h"
 #include "messages.h"
 
-// Communications functions' pointer
 void (*init_main_socket)();
 void (*receive_message)(char*);
 void (*send_message)(char*);
 
 void initialize(int argc, char* args[]){
-    if(argc != 7){
-        printf("Invalid number of command line arguments (should be 6)\n");
+    if(argc != 8){
+        printf("Invalid number of command line arguments (should be 7)\n");
         exit(1);
     }
 
     user_ID = args[1];
 
-    IP = "127.0.0.1";
+    char raw[4][4];
+    sscanf(args[2], "%[^.].%[^.].%[^.].%[^.]", raw[0],raw[1],raw[2],raw[3]);
+    if(atoi(raw[0]) != 127){
+        printf("Invalid IP address\n");
+        exit(1);
+    }
+    for(int i=1;i<4;i++){
+        short temp = atoi(raw[i]);
+        if(temp < 0 || temp > 255){
+            printf("Invalid IP address\n");
+            exit(1);
+        }
+    }
+    IP = args[2];
 
-    port = atoi(args[2]);
+
+    port = atoi(args[3]);
     if(port < 1024){
         printf("Invalid listening port number (should be in range [1024;65535])\n");
     }
-    next_client_IP = args[3];
-    //TODO check a value of the IP_address
-    next_client_port = atoi(args[4]);
+
+    
+    sscanf(args[4], "%[^.].%[^.].%[^.].%[^.]", raw[0],raw[1],raw[2],raw[3]);
+    if(atoi(raw[0]) != 127){
+        printf("Invalid IP address\n");
+        exit(1);
+    }
+    for(int i=1;i<4;i++){
+        short temp = atoi(raw[i]);
+        if(temp < 0 || temp > 255){
+            printf("Invalid next client's IP address\n");
+            exit(1);
+        }
+    }
+    next_client_IP = args[4];
+
+    next_client_port = atoi(args[5]);
     if(next_client_port < 1024){
         printf("Invalid next client port number (should be in range [1024;65535])\n");
     }
 
-    int raw_token_holding_flag = atoi(args[5]);
+    int raw_token_holding_flag = atoi(args[6]);
     if(raw_token_holding_flag != 0 && raw_token_holding_flag != 1){
         printf("Invalid token holding flag (should be '0' or '1')\n");
         exit(1);
     }
     token_holding_flag = raw_token_holding_flag;
 
-    protocol = args[6];
+    protocol = args[7];
     if(strcmp(protocol,"TCP") == 0){
         init_main_socket = init_main_socket_tcp;
         receive_message = receive_message_tcp;
@@ -242,5 +269,4 @@ int main(int argc, char** args)
 //TODO
 /*
     -> ogarnac IP (pobieranie zamiast hardcode localhost)
-    -> prezentacja w make'u
 */
