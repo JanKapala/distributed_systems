@@ -61,16 +61,13 @@ void print_configuration_info(){
 #define COMMUNICATION_STATE 12
 #define ADDING_NEW_CLIENT_STATE 13
 
-
-char msg_text[MAX_MSG_TEXT_LEN]={};
-
 int main(int argc, char** args)
 {
-    IP = "127.0.0.1";
     parse_input(argc, args);
+    IP = "127.0.0.1";
+    init_listening_socket();
 
     print_configuration_info();
-    listening_socket = init_listening_socket(port, IP);
     
     // Determine initial state
     int current_state;
@@ -85,7 +82,7 @@ int main(int argc, char** args)
     char src_ip[16]={};
     int dest_port;
     char dest_ip[16]={};
-    
+    char msg_text[MAX_MSG_TEXT_LEN]={};
     char buffer[MAX_MSG_LEN]={};
 
     // Main loop of the states transitions
@@ -123,10 +120,10 @@ int main(int argc, char** args)
             strcpy(next_client_IP, new_next_client_ip);
             next_client_port = new_next_client_port;
 
+            printf("Token ring topology changed: next client updated\n");
             print_configuration_info();
 
             // Send setting message to the new client
-            // outgoing_socket = init_outgoing_socket(next_client_port, next_client_IP);
             send_message(buffer);
 
             // Go to next state
@@ -136,15 +133,9 @@ int main(int argc, char** args)
         else if(current_state == ANOTHER_NEW_CLIENT_STATE){
             printf("\nEnter ANOTHER_NEW_CLIENT_STATE\n");
 
-            serialize_msg(buffer,
-                            NEW_CLIENT_TOKEN_FLAG,
-                            port,
-                            IP,
-                            next_client_port,
-                            next_client_IP,
+            serialize_msg(buffer, NEW_CLIENT_TOKEN_FLAG, port, IP, next_client_port, next_client_IP,
                             "new client hello message");
 
-            // outgoing_socket = init_outgoing_socket(next_client_port, next_client_IP);
             send_message(buffer);
 
             // Wait for setting message and skip other messages
@@ -157,7 +148,6 @@ int main(int argc, char** args)
             // Update next client address
             next_client_IP = src_ip;
             next_client_port = src_port;
-            // outgoing_socket = init_outgoing_socket(next_client_port, next_client_IP);
 
             printf("Token ring connection established\n");
 
@@ -176,7 +166,7 @@ int main(int argc, char** args)
             if(tkn_flag == NEW_CLIENT_TOKEN_FLAG) current_state = ADDING_NEW_CLIENT_STATE;
             else if(tkn_flag == FREE_TOKEN_FLAG){
                 printf("Free token received\n");
-                sleep(1);
+
                 printf("Type address [IP:port]:\n");
                 scanf("%[^:]:%d",dest_ip, &dest_port);
                 while(port == dest_port && strcmp(IP, dest_ip) == 0){
@@ -185,20 +175,9 @@ int main(int argc, char** args)
                     scanf("%[^:]:%d",dest_ip, &dest_port);
                 }
                 printf("Type message text:\n");
-                // memset(msg_text,'\0', MAX_MSG_TEXT_LEN);
                 scanf("%s",msg_text);
 
-
-
-                serialize_msg(buffer,
-                                SENT_TOKEN_FLAG,
-                                port,
-                                IP,
-                                dest_port,
-                                dest_ip,
-                                msg_text);
-
-                // outgoing_socket = init_outgoing_socket(next_client_port, next_client_IP);
+                serialize_msg(buffer, SENT_TOKEN_FLAG, port, IP, dest_port, dest_ip,msg_text);
                 send_message(buffer);
 
                 token_holding_flag = 0;
@@ -208,42 +187,25 @@ int main(int argc, char** args)
                 if(strcmp(src_ip, IP) == 0 && src_port == port){
                     printf("There is no client who is destination of this message:\n");
                     print_msg(buffer);
-                    serialize_msg(buffer,
-                                    FREE_TOKEN_FLAG,
-                                    src_port,
-                                    src_ip,
-                                    dest_port,
-                                    dest_ip,
-                                    msg_text);
+                    serialize_msg(buffer, FREE_TOKEN_FLAG, src_port, src_ip, dest_port,
+                                    dest_ip, msg_text);
                 }
                 else if(strcmp(dest_ip, IP) == 0 && dest_port == port){
                     printf("Received Message:\n");
                     print_msg(buffer);
-                    serialize_msg(buffer,
-                                    RECEIVED_TOKEN_FLAG,
-                                    src_port,
-                                    src_ip,
-                                    dest_port,
-                                    dest_ip,
-                                    msg_text);
+                    memset(msg_text, '\0', MAX_MSG_TEXT_LEN);
+                    serialize_msg(buffer, RECEIVED_TOKEN_FLAG, src_port, src_ip, dest_port,
+                                    dest_ip, msg_text);
                 }
-                // outgoing_socket = init_outgoing_socket(next_client_port, next_client_IP);
                 send_message(buffer);
             }
             else if(tkn_flag == RECEIVED_TOKEN_FLAG){
                 printf("Received token received\n");
                 if(strcmp(src_ip, IP) == 0 && src_port == port){
-                    printf("Successfully sent message:\n");
-                    print_msg(buffer);
-                    serialize_msg(buffer,
-                                    FREE_TOKEN_FLAG,
-                                    src_port,
-                                    src_ip,
-                                    dest_port,
-                                    dest_ip,
-                                    msg_text);
+                    printf("The message has been successfully delivered:\n");
+                    serialize_msg(buffer, FREE_TOKEN_FLAG, src_port, src_ip, dest_port,
+                                    dest_ip, msg_text);
                 }
-                // outgoing_socket = init_outgoing_socket(next_client_port, next_client_IP);
                 send_message(buffer);
             }
             else{
@@ -255,15 +217,12 @@ int main(int argc, char** args)
     
     shutdown( listening_socket, SHUT_RDWR );
 }
-//   gcc universal.c -g -Wall -o universal && ./server
 
 //TODO
 /*
-    -> Przeprowadzic i przetestowac transmisje
-    -> automatyczny wybor wlasnego portu
-    -> co gdy dwaj klienci maja ten sam adres? Wymyslic obejscie
-    -> usuwanie klientow
-    -> czyszczenie wiadomosci po odebraniu
-    -> podzial na osobne pliki, przygotowanie repozytorium
+    -> ogarnac IP (pobieranie zamiast hardcode localhost)
     -> oczyszczenie kodu
+    -> UDP implementation
+    -> wybor implementavji komunikacji przez wskazniki
+    -> prezentacja w make'u
 */
