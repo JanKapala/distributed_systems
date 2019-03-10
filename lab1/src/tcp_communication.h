@@ -14,10 +14,8 @@
 
 #define MAX_CONNECTION 10
 
-void init_listening_socket();
-
+void init_main_socket();
 void receive_message(char* buffer);
-
 void send_message(char* buffer);
 
 #endif

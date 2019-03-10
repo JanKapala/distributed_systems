@@ -12,24 +12,8 @@
 
 #include "common.h"
 
-#define MAX_CONNECTION 1
-
-
-int listening_socket;
-int outgoing_socket;
-
-char* user_ID;
-char* IP;
-int port;
-char* next_client_IP;
-int next_client_port;
-_Bool token_holding_flag;
-char* protocol;
-
-void init_listening_socket();
-
+void init_main_socket();
 void receive_message(char* buffer);
-
 void send_message(char* buffer);
 
 #endif

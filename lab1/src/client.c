@@ -65,7 +65,7 @@ int main(int argc, char** args)
 {
     parse_input(argc, args);
     IP = "127.0.0.1";
-    init_listening_socket();
+    init_main_socket();
 
     print_configuration_info();
     
@@ -90,7 +90,7 @@ int main(int argc, char** args)
         if(current_state == FIRST_NEW_CLIENT_STATE){
             printf("\nEnter FIRST_NEW_CLIENT_STATE\n");
 
-            // Wait for 'NEW_CLIENT' message with and skip other messages
+            // Wait for 'NEW_CLIENT' message and skip other messages
             tkn_flag = -1;
             while(tkn_flag != NEW_CLIENT_TOKEN_FLAG){
                 receive_message(buffer);
@@ -215,7 +215,7 @@ int main(int argc, char** args)
         }
     }
     
-    shutdown( listening_socket, SHUT_RDWR );
+    shutdown(main_socket, SHUT_RDWR);
 }
 
 //TODO
@@ -225,4 +225,5 @@ int main(int argc, char** args)
     -> UDP implementation
     -> wybor implementavji komunikacji przez wskazniki
     -> prezentacja w make'u
+    -> wydobyc i dac w inne miejsce ustawianie adresu nowgo klienta
 */

@@ -4,8 +4,7 @@
 #define MAX_MSG_LEN 4096
 #define MAX_MSG_TEXT_LEN 4000
 
-int listening_socket;
-int outgoing_socket;
+int main_socket;
 
 char* user_ID;
 char* IP;

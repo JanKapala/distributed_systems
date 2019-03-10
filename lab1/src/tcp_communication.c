@@ -1,6 +1,6 @@
 #include "tcp_communication.h"
 
-void init_listening_socket(){
+void init_main_socket(){
     struct sockaddr_in incoming_addr = {
         .sin_family = AF_INET,
         .sin_port = htons(port)
@@ -11,18 +11,18 @@ void init_listening_socket(){
     }
     socklen_t len = sizeof(incoming_addr);
     
-    listening_socket = socket(AF_INET, SOCK_STREAM, 0);
-    if(listening_socket < 0){
+    main_socket = socket(AF_INET, SOCK_STREAM, 0);
+    if(main_socket < 0){
         perror("socket() ERROR");
         exit(2);
     }
     
-    if(bind(listening_socket,(struct sockaddr *) & incoming_addr, len) < 0 ){
+    if(bind(main_socket,(struct sockaddr *) & incoming_addr, len) < 0 ){
         perror("bind() ERROR");
         exit(3);
     }
     
-    if(listen(listening_socket, MAX_CONNECTION) < 0){
+    if(listen(main_socket, MAX_CONNECTION) < 0){
         perror("listen() ERROR");
         exit(4);
     }
@@ -30,7 +30,7 @@ void init_listening_socket(){
 
 void receive_message(char* buffer){
     printf("Waiting for token...\n");
-    const int incoming_socket = accept(listening_socket, NULL, NULL);
+    const int incoming_socket = accept(main_socket, NULL, NULL);
     if(incoming_socket < 0){
         perror("accept() ERROR");
     }
@@ -40,6 +40,8 @@ void receive_message(char* buffer){
         perror("recv() ERROR");
         exit(5);
     }
+
+    shutdown(incoming_socket, SHUT_RDWR);
 }
 
 void send_message(char* buffer){

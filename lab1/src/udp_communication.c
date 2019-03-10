@@ -1,6 +1,6 @@
 #include "udp_communication.h"
 
-void init_listening_socket(){
+void init_main_socket(){
     struct sockaddr_in incoming_addr = {
         .sin_family = AF_INET,
         .sin_port = htons(port)
@@ -11,13 +11,13 @@ void init_listening_socket(){
     }
     socklen_t len = sizeof(incoming_addr);
     
-    listening_socket = socket( AF_INET, SOCK_DGRAM, 0 );
-    if(listening_socket < 0){
+    main_socket = socket(AF_INET, SOCK_DGRAM, 0);
+    if(main_socket < 0){
         perror("socket() ERROR");
         exit(2);
     }
     
-    if(bind(listening_socket,(struct sockaddr *) & incoming_addr, len) < 0 ){
+    if(bind(main_socket,(struct sockaddr *) & incoming_addr, len) < 0 ){
         perror("bind() ERROR");
         exit(3);
     }
@@ -27,7 +27,7 @@ void receive_message(char* buffer){
     printf("Waiting for token...\n");
 
     memset(buffer, '\0', MAX_MSG_LEN);
-    if(recvfrom(listening_socket, buffer, MAX_MSG_LEN, 0, NULL, NULL) < 0){
+    if(recv(main_socket, buffer, MAX_MSG_LEN, 0) < 0){
         perror("recvfrom() ERROR");
         exit(5);
     }
@@ -44,16 +44,8 @@ void send_message(char* buffer){
     }
     socklen_t len = sizeof(next_client_addr);
 
-    const int outgoing_socket = socket(AF_INET, SOCK_DGRAM, 0);
-    if(outgoing_socket < 0){
-        perror("socket() ERROR");
-        exit(2);
-    }
-
-    if(sendto(outgoing_socket, buffer, MAX_MSG_LEN, 0, (struct sockaddr*) & next_client_addr, len) <= 0 ){
+    if(sendto(main_socket, buffer, MAX_MSG_LEN, 0, (struct sockaddr*) & next_client_addr, len) <= 0 ){
         perror("sendto() ERROR");
         exit(6);
     }
-
-    shutdown(outgoing_socket, SHUT_RDWR);
 }
